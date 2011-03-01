@@ -1,0 +1,52 @@
+<html>
+    <head>
+        <title>Puzzler Page</title>
+        <script src="./puzzler.js" type="text/javascript"></script> 
+        <script language="javascript" type="text/javascript">
+            var decoder = new Decoder('message', 'current-letter', 'mode-area');
+            var binary = new Binary(decoder, 'x', 'current-binary-val');
+            decoder.decodeFunction = function(a) {binary.decode(a);};
+            var currentMode = binary;
+        </script>
+    </head>
+    <body>
+        <div id="message-div">Message: "<span id="message"></span>"</div>
+        <div id="current-letter-div">Current Letter (<span id='mode-area'>ADD</span>): "<span id="current-letter"></span>"</div>
+        <div id="binary-div">
+            Current Binary Value: <span id="current-binary-val">0</span>
+            <table>
+                <thead>
+                    <tr>
+                        <th>16</th>
+                        <th>8</th>
+                        <th>4</th>
+                        <th>2</th>
+                        <th>1</th>
+                    </tr>
+                </thead>
+                </tbody>
+                    <tr>
+                        <td> <button id="x16" value="0" onclick="binary.update(4)">0</button> </td>
+                        <td> <button id="x8"  value="0" onclick="binary.update(3)">0</button> </td>
+                        <td> <button id="x4"  value="0" onclick="binary.update(2)">0</button> </td>
+                        <td> <button id="x2"  value="0" onclick="binary.update(1)">0</button> </td>
+                        <td> <button id="x1"  value="0" onclick="binary.update(0)">0</button> </td>
+                </tbody>
+            </table>
+        </div>
+        <div id="ternary-div">
+        </div>
+        <div id="morse-div">
+        </div>
+        <div id="braille-div">
+        </div>
+        <div id="semaphore-div">
+        </div>
+        <div id="controls" >
+            <button id="reset"  value="Reset" onclick="currentMode.reset()">Reset</button>
+            <button id="commit"  value="Commit" onclick="currentMode.commit()">Commit</button>
+            <button id="backspace"  value="Backspace" onclick="currentMode.backspace()">Backspace</button>
+            <button id="clear"  value="Clear" onclick="currentMode.clear()">Clear Message</button>
+        </div>
+    </body>
+</html>
