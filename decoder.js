@@ -10,6 +10,14 @@ String.prototype.replaceChar = function(pos, c) {
     return s;
 }
 
+String.prototype.capFirst = function() {
+    if (this == '' ) return this;
+    var first = this.substring(0, 1);
+    var rest = this.substring(1, this.length);
+    first = first.toUpperCase();
+    return first+rest;
+}
+
 function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
 
     this.EMPTY = '';
@@ -17,15 +25,12 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
     this.mode = 'ADD';
     this.cursor = 1;
     this.message = "";
-    this.messageAreaId = messageAreaId;
-    this.characterAreaId = characterAreaId;
-    this.modeAreaId = modeAreaId;
     this.codes = [];
     this.currentCode = '';
 
-    this.backspace = function() {
-        this.message = this.message.substring(0, this.message.length() - 2);
-    };
+    this.messageAreaId = 'message';
+    this.characterAreaId = 'current-letter';
+    this.modeAreaId = 'mode-area';
 
     this.commit = function() {
         var val = this.code().getLetter();
@@ -48,6 +53,38 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
         } else {
             return this.codes[this.currentCode]
         }
+    };
+
+    this.draw = function(targetDivName) {
+        var rootDiv = document.getElementById(targetDivName);
+        var content = '';
+        content += '<div id="message-div">Message: "<span id="message"></span>"</div>';
+        content += '<div id="current-letter-div">Current Letter (<span id="mode-area">ADD</span>): "<span id="current-letter"></span>"</div>';
+        content += '<ul id="selection-tabs">';
+        for (codeName in this.codes) {
+            content += '<li><a href="#' + codeName + '" id="' + codeName + '-tab" class="tab" onclick="decoder.setCode(\'' + codeName + '\')">' + codeName.capFirst() + '</a></li>';
+        }
+        content += '</ul>'; // selection tabs
+        content += '<div id="codes-div"></div>';
+        content += '<div id="controls" >';
+        content += '<button id="reset"  value="Reset" onclick="decoder.reset()">Reset</button>';
+        content += '<button id="commit"  value="Commit" onclick="decoder.commit()">Commit</button>';
+        content += '<button id="backspace"  value="Backspace" onclick="decoder.backspace()">Backspace</button>';
+        content += '<button id="space"  value="Space" onclick="decoder.space()">Space</button>';
+        content += '<button id="clear"  value="Clear" onclick="decoder.clear()">Clear Message</button>';
+        content += '</div>';
+
+        rootDiv.innerHTML = content;
+
+        var codesDiv = document.getElementById('codes-div');
+
+        for (codeName in this.codes) {
+            var code = this.codes[codeName];
+            code.draw(codesDiv);
+        }
+
+        this.updateDisplay();
+       
     };
 
     this.updateDisplay = function() {
@@ -77,7 +114,9 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
             if (i == this.cursor) {
                 m +=  '<span class="edit">' + message[i] + '</span>';
             } else {
-                m +=  '<a href="#" onclick="decoder.edit('+i+')">' + message[i] + '</a>';
+                var c = message[i];
+                c = (c == ' ') ? '_' : c;
+                m +=  '<a href="#" onclick="decoder.edit('+i+')">' + c + '</a>';
             }
         }
         return m;
@@ -94,6 +133,11 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
     this.unedit = function() {
         this.cursor = this.message.length + 1;
         this.mode = 'ADD';
+    };
+
+    this.space = function() {
+        this.message = this.message + ' ';
+        this.commit();
     };
 
     this.backspace = function() {
@@ -134,7 +178,9 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
     this.hotKeyHandler = function(e) {
         var evnt = window.event; 
         var keyCode = evnt.keyCode;
-        if (46 == keyCode) {
+        if (32 == keyCode) {
+            this.space();
+        } else if (46 == keyCode) {
             this.backspace();
         } else if (13 == keyCode) {
             this.commit();
@@ -155,13 +201,12 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
     } else {
         document.onkeypress = function(e) {this.hotKeyHandler(e); }.bind(this);
     }
-
 }
 
-function Code(name, displayDiv, imageExt, resetFunction, updateDisplayFunction, decodeFunction, getLetterFunction, hotKeyMappings) {
+function Code(name, imageExt, resetFunction, updateDisplayFunction, decodeFunction, getLetterFunction, drawFunction, hotKeyMappings) {
     this.name = name;
     this.imageExt = imageExt;
-    this.displayDiv = displayDiv;
+    this.displayDiv = name + '-div';
 
     this.getImage = function(letter, ext) {
         return  './images/' + this.name + '/' + letter + "." + this.imageExt;
@@ -171,6 +216,7 @@ function Code(name, displayDiv, imageExt, resetFunction, updateDisplayFunction, 
     this.updateDisplay = updateDisplayFunction; // no parameters; update the html page to represent the interior state 
     this.decode = decodeFunction; // accepts one parameter; update the interior state to represent the code value of 'letter' 
     this.getLetter = getLetterFunction; // no parameters;  returns the value represented by the decoder at this time
+    this.draw = drawFunction; // one parameter: the div to insert this into; draw the visible UI for the code
     this.decoder = '';
 
     this.setVisible = function(visible) {
@@ -200,4 +246,22 @@ function Code(name, displayDiv, imageExt, resetFunction, updateDisplayFunction, 
     for (key in this.hotKeyMappings) {
         this.hotKeyMappings[key] = this.hotKeyMappings[key].bind(this);
     }
+
+}
+
+function DecoderFactory(divId) {
+    decoder = new Decoder();
+    var binary = new Binary();
+    var ternary = new Ternary();
+    var morse = new Morse();
+    var braille = new Braille();
+    var semaphore = new Semaphore();
+
+    decoder.addCode(binary);
+    decoder.addCode(ternary);
+    decoder.addCode(morse);
+    decoder.addCode(braille);
+    decoder.addCode(semaphore);
+    decoder.draw(divId);
+    document.decoder = decoder;
 }

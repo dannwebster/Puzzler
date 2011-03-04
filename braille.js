@@ -1,11 +1,11 @@
-function Braille(displayDiv, pipElementIdPrefix) {
+function Braille() {
     this.OFF = ".";
     this.ON = "0";
     this.EMPTY = "......";
 
 
     this.parent = Code;
-    this.parent('braille', displayDiv, 'png', 
+    this.parent('braille', 'png', 
         // ***********
         // resetFunction, 
         // ***********
@@ -19,7 +19,7 @@ function Braille(displayDiv, pipElementIdPrefix) {
         function() {
             for (var i = 0; i < this.pips.length; i++) {
                 // convert from 0-indexed to 1 indexed
-                var id = this.pipElementIdPrefix + (i+1);
+                var id = this.name + (i+1);
                 var pip = document.getElementById(id);
                 var val = this.pips[i];
                 pip.innerHTML = val;
@@ -47,6 +47,35 @@ function Braille(displayDiv, pipElementIdPrefix) {
                 return this.decoder.UNKNOWN;
             }
         },
+        // ***********
+        // drawFunction
+        // ***********
+        function(div) {
+            var content = '';
+            content += '<div id="braille-div">';
+            content += '<table>';
+            content += '<thead>';
+            content += '</thead>';
+            content += '</tbody>';
+            content += '<tr>';
+            content += '<td><button id="braille1" onclick="braille.toggle(1)">.</button></td>';
+            content += '<td><button id="braille2" onclick="braille.toggle(2)">.</button></td>';
+            content += '</tr>';
+            content += '<tr>';
+            content += '<td><button id="braille3" onclick="braille.toggle(3)">.</button></td>';
+            content += '<td><button id="braille4" onclick="braille.toggle(4)">.</button></td>';
+            content += '</tr>';
+            content += '<tr>';
+            content += '<td><button id="braille5" onclick="braille.toggle(5)">.</button></td>';
+            content += '<td><button id="braille6" onclick="braille.toggle(6)">.</button></td>';
+            content += '</tr>';
+            content += '</tbody>';
+            content += '</table>';
+            content += '</div>';
+
+            div.innerHTML += content;
+        },
+
         // hot key mappings
         {
             '7' : function() { this.toggle(1); },
@@ -59,7 +88,6 @@ function Braille(displayDiv, pipElementIdPrefix) {
     );
 
     this.pips = new String(this.EMPTY);
-    this.pipElementIdPrefix = pipElementIdPrefix;
 
     this.toggle = function(index) {
         index--; // from 1 indexed to 0 indexed;

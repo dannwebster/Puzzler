@@ -1,7 +1,6 @@
-
-function Semaphore(displayDiv, flagElementIdPrefix) {
+function Semaphore() {
     this.parent = Code;
-    this.parent('semaphore', displayDiv, 'png', 
+    this.parent('semaphore', 'png', 
         // **************
         // resetFunction
         // **************
@@ -16,7 +15,7 @@ function Semaphore(displayDiv, flagElementIdPrefix) {
         function() {
             var disable =  (this.flagA != 0 && this.flagB != 0);
             for (var i = 1; i <= 8 ; i++) {
-                var a = document.getElementById(this.flagElementIdPrefix + i);
+                var a = document.getElementById(this.name + i);
                 var active = (this.flagA == i || this.flagB == i);
                 a.innerHTML = (active) ? this.flagChars[i] : '';
                 a.disabled = (disable) ? !active : false;
@@ -54,6 +53,55 @@ function Semaphore(displayDiv, flagElementIdPrefix) {
                 return this.decoder.UNKNOWN;
             }
         },
+
+        // **************
+        // drawFunction
+        // **************
+        function(div) {
+            var content = '';
+            content += '<div id="semaphore-div">';
+            content += '<table>';
+            content += '<tr>';
+            content += '<td>&nbsp;</td>';
+            content += '<td>&nbsp;</td>';
+            content += '<td><button id="semaphore5" onclick="semaphore.toggle(5)"></button></td>';
+            content += '<td>&nbsp;</td>';
+            content += '<td>&nbsp;</td>';
+            content += '</tr>';
+            content += '<tr>';
+            content += '<td>&nbsp;</td>';
+            content += '<td><button id="semaphore4" onclick="semaphore.toggle(4)"></button></td>';
+            content += '<td>&nbsp;</td>';
+            content += '<td><button id="semaphore6" onclick="semaphore.toggle(6)"></button></td>';
+            content += '<td>&nbsp;</td>';
+            content += '</tr>';
+            content += '<tr>';
+            content += '<td><button id="semaphore3" onclick="semaphore.toggle(3)"></button></td>';
+            content += '<td>&nbsp;</td>';
+            content += '<td>&nbsp;</td>';
+            content += '<td>&nbsp;</td>';
+            content += '<td><button id="semaphore7" onclick="semaphore.toggle(7)"></button></td>';
+            content += '</tr>';
+            content += '<tr>';
+            content += '<td>&nbsp;</td>';
+            content += '<td><button id="semaphore2" onclick="semaphore.toggle(2)"></button></td>';
+            content += '<td>&nbsp;</td>';
+            content += '<td><button id="semaphore8" onclick="semaphore.toggle(8)"></button></td>';
+            content += '<td>&nbsp;</td>';
+            content += '</tr>';
+            content += '<tr>';
+            content += '<td>&nbsp;</td>';
+            content += '<td>&nbsp;</td>';
+            content += '<td><button id="semaphore1" onclick="semaphore.toggle(1)"></button></td>';
+            content += '<td>&nbsp;</td>';
+            content += '<td>&nbsp;</td>';
+            content += '</tr>';
+            content += '</table>';
+            content += '</div>';
+
+            div.innerHTML += content;
+        },
+
         // hot key mappings
         {
             '2' : function() { this.toggle(1); }, 
@@ -69,7 +117,6 @@ function Semaphore(displayDiv, flagElementIdPrefix) {
 
     this.flagA = 0;
     this.flagB = 0;
-    this.flagElementIdPrefix = flagElementIdPrefix;
 
     this.flagChars = { 
         1 : '|', 2 : '/', 3 : '-', 4 : '\\',

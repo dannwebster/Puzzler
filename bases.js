@@ -1,6 +1,6 @@
-function Base(name, displayDiv, imageExt, radix, placeCount, displayElementIdPrefix, numericalElementId, hotKeyMappings) {
+function Base(name, imageExt, radix, placeCount, hotKeyMappings) {
     this.parent = Code;
-    this.parent(name, displayDiv, imageExt, 
+    this.parent(name, imageExt, 
             // **************
             // resetFunction
             // **************
@@ -13,12 +13,12 @@ function Base(name, displayDiv, imageExt, radix, placeCount, displayElementIdPre
             // updateDisplayFunction
             // **************
             function() {
-                var e = document.getElementById(this.numerical);
+                var e = document.getElementById('current-'+this.name+'-val');
                 if (e) {
                     e.innerText = this.value;
                 }
                 for (var i = 0; i < this.placeCount; i++) {
-                    var e = document.getElementById(this.prefix + Math.pow(this.radix, i));
+                    var e = document.getElementById(this.name + Math.pow(this.radix, i));
                     e.innerText = this.places[i];
                 }
             },
@@ -55,13 +55,41 @@ function Base(name, displayDiv, imageExt, radix, placeCount, displayElementIdPre
                     return decoder.UNKNOWN;
                 }
             },
+
+            // **************
+            // drawFunction
+            // **************
+            function(div) {
+                var content = '';
+                content += '<div id="' + this.name + '-div">';
+                content += 'Current ' + this.name.capFirst() + ' Value: <span id="current-' + this.name + '-val">0</span>';
+                content += '<table>';
+                content += '<thead>';
+                content += '<tr>';
+                for (var i = this.placeCount - 1; i >= 0; i--) {
+                    var place = Math.pow(this.radix, i);
+                    content += '<th>' + place + '</th>';
+                }
+                content += '</tr>';
+                content += '</thead>';
+                content += '</tbody>';
+                content += '<tr>';
+                for (var i = this.placeCount - 1; i >= 0; i--) {
+                    var place = Math.pow(this.radix, i);
+                    content += '<td> <button id="' + this.name + place + '" value="0" onclick="decoder.code(\'' + this.name + '\').bump(' + i + ')">0</button> </td>';
+                }
+                content += '</tr>';
+                content += '</tbody>';
+                content += '</table>';
+                content += '</div>';
+
+                div.innerHTML += content;
+            },
             hotKeyMappings
     );
     this.radix = radix;
     this.places = new Array(placeCount);
     this.placeCount = placeCount; 
-    this.prefix = displayElementIdPrefix;
-    this.numerical = numericalElementId;
     this.value = 0;
 
     for (var i = 0; i < this.placeCount; i++) {
@@ -94,12 +122,11 @@ function Base(name, displayDiv, imageExt, radix, placeCount, displayElementIdPre
             this.places[i] = 0;
         }
     };
-
 }
 
-function Binary(displayDiv, displayElementIdPrefix, numericalElementId) {
+function Binary() {
     this.parent = Base;
-    this.parent('binary', displayDiv, 'png', 2, 5, displayElementIdPrefix, numericalElementId, 
+    this.parent('binary', 'png', 2, 5, 
     {
         '1' : function() { this.bump(4); },
         '2' : function() { this.bump(3); },
@@ -109,9 +136,9 @@ function Binary(displayDiv, displayElementIdPrefix, numericalElementId) {
     });
 }
 
-function Ternary(displayDiv, displayElementIdPrefix, numericalElementId) {
+function Ternary() {
     this.parent = Base;
-    this.parent('ternary', displayDiv, 'png', 3, 3, displayElementIdPrefix, numericalElementId,
+    this.parent('ternary', 'png', 3, 3, 
     {
         '1' : function() { this.bump(2); },
         '2' : function() { this.bump(1); },
