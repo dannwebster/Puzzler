@@ -64,7 +64,7 @@ function Semaphore() {
             content += '<tr>';
             content += '<td>&nbsp;</td>';
             content += '<td>&nbsp;</td>';
-            content += '<td><button id="semaphore5" onclick="decoder.code(\'semaphore\')return decoder;.toggle(5)"></button></td>';
+            content += '<td><button id="semaphore5" onclick="decoder.code(\'semaphore\').toggle(5)"></button></td>';
             content += '<td>&nbsp;</td>';
             content += '<td>&nbsp;</td>';
             content += '</tr>';
