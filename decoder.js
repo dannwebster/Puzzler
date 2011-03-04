@@ -130,9 +130,35 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
         this.currentCode = name;
         this.updateDisplay();
     };
+
+    this.hotKeyHandler = function(e) {
+        var evnt = window.event; 
+        var keyCode = evnt.keyCode;
+        if (46 == keyCode) {
+            this.backspace();
+        } else if (13 == keyCode) {
+            this.commit();
+        } else if (this.code().hotKeyMappings) {
+            var code = String.fromCharCode(keyCode);
+            //alert("keyCode: " + keyCode + " , code: " + code);
+            var func = this.code().hotKeyMappings[code];
+            if (func) {
+                func();
+            }
+        }
+    };
+
+    // enable hotkeys
+    if (!document.all) {
+        window.captureEvents(Event.KEYPRESS);
+        window.onkeypress = function(e) {this.hotKeyHandler(e); }.bind(this);
+    } else {
+        document.onkeypress = function(e) {this.hotKeyHandler(e); }.bind(this);
+    }
+
 }
 
-function Code(name, displayDiv, imageExt, resetFunction, updateDisplayFunction, decodeFunction, getLetterFunction) {
+function Code(name, displayDiv, imageExt, resetFunction, updateDisplayFunction, decodeFunction, getLetterFunction, hotKeyMappings) {
     this.name = name;
     this.imageExt = imageExt;
     this.displayDiv = displayDiv;
@@ -168,4 +194,10 @@ function Code(name, displayDiv, imageExt, resetFunction, updateDisplayFunction, 
         this.setVisible(true);
     }
 
+    // a map of keys to the functions they bind to
+    this.hotKeyMappings = hotKeyMappings;
+
+    for (key in this.hotKeyMappings) {
+        this.hotKeyMappings[key] = this.hotKeyMappings[key].bind(this);
+    }
 }

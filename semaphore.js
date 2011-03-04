@@ -1,20 +1,26 @@
 
-//function Code(name, displayDiv, imageExt, resetFunction, updateDisplayFunction, decodeFunction, getLetterFunction) {
 function Semaphore(displayDiv, flagElementIdPrefix) {
-    this.EMPTY = 000;
     this.parent = Code;
-    this.code('semaphore', displayDiv, 'png', 
+    this.parent('semaphore', displayDiv, 'png', 
         // **************
         // resetFunction
         // **************
         function() {
-            this.flags = this.EMPTY;
+            this.flagA = 0;
+            this.flagB = 0;
         }, 
 
         // **************
         // updateDisplayFunction
         // **************
         function() {
+            var disable =  (this.flagA != 0 && this.flagB != 0);
+            for (var i = 1; i <= 8 ; i++) {
+                var a = document.getElementById(this.flagElementIdPrefix + i);
+                var active = (this.flagA == i || this.flagB == i);
+                a.innerHTML = (active) ? this.flagChars[i] : '';
+                a.disabled = (disable) ? !active : false;
+            }
         }, 
 
         // **************
@@ -23,9 +29,12 @@ function Semaphore(displayDiv, flagElementIdPrefix) {
         function(letter) {
             var val = this.letterToFlags[letter];
             if (val) {
-                this.flags = val;
+                var b = val % 10;
+                var a = (val-b) / 10;
+                this.flagA = a;
+                this.flagB = b;
             } else {
-                this.flags = this.EMPTY;
+                this.reset();
             }
         }, 
 
@@ -33,53 +42,96 @@ function Semaphore(displayDiv, flagElementIdPrefix) {
         // getLetterFunction
         // **************
         function() {
-            if (this.flags == this.EMPTY) {
+            var flags = this.flags();
+
+            if (this.flagA == 0 && this.flagB == 0) {
                 return '';
             }
-            var val = this.flagsToLetter[this.flags];
+            var val = this.flagsToLetter[flags];
             if (val) {
                 return val;
             } else {
                 return this.decoder.UNKNOWN;
             }
+        },
+        // hot key mappings
+        {
+            '2' : function() { this.toggle(1); }, 
+            '1' : function() { this.toggle(2); }, 
+            '4' : function() { this.toggle(3); }, 
+            '7' : function() { this.toggle(4); }, 
+            '8' : function() { this.toggle(5); }, 
+            '9' : function() { this.toggle(6); }, 
+            '6' : function() { this.toggle(7); }, 
+            '3' : function() { this.toggle(8); }, 
         }
     );
 
-    this.flagElementidPrefix = flagElementidPrefix;
+    this.flagA = 0;
+    this.flagB = 0;
+    this.flagElementIdPrefix = flagElementIdPrefix;
 
+    this.flagChars = { 
+        1 : '|', 2 : '/', 3 : '-', 4 : '\\',
+        5 : '|', 6 : '/', 7 : '-', 8 : '\\',
+    };
+    this.flags = function() {
+        return 10 * this.flagA + this.flagB;
+    }
     this.letterToFlags = {
-        'A' : 001,
-        'B' : 002,
-        'C' : 003,
-        'D' : 004,
-        'E' : 005,
-        'F' : 006,
-        'G' : 007,
-        'H' : 012,
-        'I' : 013,
-        'J' : 046,
-        'K' : 014,
-        'L' : 015,
-        'M' : 016,
-        'N' : 017,
-        'O' : 023,
-        'P' : 024,
-        'Q' : 025,
-        'R' : 026,
-        'S' : 027,
-        'T' : 034,
-        'U' : 035,
-        'V' : 046,
-        'W' : 056,
-        'X' : 057,
-        'Y' : 036,
-        'Z' : 067,
+        'A' : 12,
+        'B' : 13,
+        'C' : 14,
+        'D' : 15,
+        'E' : 16,
+        'F' : 17,
+        'G' : 18,
+        'H' : 23,
+        'I' : 24,
+        'J' : 57,
+        'K' : 25,
+        'L' : 26,
+        'M' : 27,
+        'N' : 28,
+        'O' : 34,
+        'P' : 35,
+        'Q' : 36,
+        'R' : 37,
+        'S' : 38,
+        'T' : 45,
+        'U' : 46,
+        'V' : 57,
+        'W' : 67,
+        'X' : 68,
+        'Y' : 47,
+        'Z' : 78,
     };
 
     this.flagsToLetter = {};
 
     for (var letter in this.letterToFlags) {
-        var flags = this.letterToPips[letter];
+        var flags = this.letterToFlags[letter];
         this.flagsToLetter[flags] = letter;
+    }
+
+    this.toggle = function(flag) {
+        if (this.flagA == flag) {
+            this.flagA = 0;
+        } else if (this.flagB == flag) {
+            this.flagB = 0;
+        } else if (this.flagA == 0) {
+            this.flagA = flag;
+        } else if (this.flagB == 0) {
+            this.flagB = flag;
+        } else {
+            this.flagA = flag;
+        }
+
+        if (this.flagA > this.flagB) {
+            var tmp = this.flagA;
+            this.flagA = this.flagB;
+            this.flagB = tmp;
+        }
+        this.decoder.updateDisplay();
     }
 }

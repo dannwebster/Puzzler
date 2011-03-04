@@ -1,7 +1,5 @@
-function Base(name, displayDiv, imageExt, radix, placeCount, displayElementIdPrefix, numericalElementId) {
+function Base(name, displayDiv, imageExt, radix, placeCount, displayElementIdPrefix, numericalElementId, hotKeyMappings) {
     this.parent = Code;
-    // PARENT CONSTRUCTOR 
-    // function Code(name, displayDiv, imageExt, resetFunction, updateDisplayFunction, decodeFunction, getLetterFunction);
     this.parent(name, displayDiv, imageExt, 
             // **************
             // resetFunction
@@ -56,8 +54,8 @@ function Base(name, displayDiv, imageExt, radix, placeCount, displayElementIdPre
                 } else {
                     return decoder.UNKNOWN;
                 }
-            }
-
+            },
+            hotKeyMappings
     );
     this.radix = radix;
     this.places = new Array(placeCount);
@@ -101,10 +99,22 @@ function Base(name, displayDiv, imageExt, radix, placeCount, displayElementIdPre
 
 function Binary(displayDiv, displayElementIdPrefix, numericalElementId) {
     this.parent = Base;
-    this.parent('binary', displayDiv, 'png', 2, 5, displayElementIdPrefix, numericalElementId);
+    this.parent('binary', displayDiv, 'png', 2, 5, displayElementIdPrefix, numericalElementId, 
+    {
+        '1' : function() { this.bump(4); },
+        '2' : function() { this.bump(3); },
+        '3' : function() { this.bump(2); },
+        '4' : function() { this.bump(1); },
+        '5' : function() { this.bump(0); },
+    });
 }
 
 function Ternary(displayDiv, displayElementIdPrefix, numericalElementId) {
     this.parent = Base;
-    this.parent('ternary', displayDiv, 'png', 3, 3, displayElementIdPrefix, numericalElementId);
+    this.parent('ternary', displayDiv, 'png', 3, 3, displayElementIdPrefix, numericalElementId,
+    {
+        '1' : function() { this.bump(2); },
+        '2' : function() { this.bump(1); },
+        '3' : function() { this.bump(0); },
+    });
 }

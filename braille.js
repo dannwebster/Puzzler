@@ -46,6 +46,15 @@ function Braille(displayDiv, pipElementIdPrefix) {
             } else {
                 return this.decoder.UNKNOWN;
             }
+        },
+        // hot key mappings
+        {
+            '7' : function() { this.toggle(1); },
+            '8' : function() { this.toggle(2); },
+            '4' : function() { this.toggle(3); },
+            '5' : function() { this.toggle(4); },
+            '1' : function() { this.toggle(5); },
+            '2' : function() { this.toggle(6); },
         }
     );
 

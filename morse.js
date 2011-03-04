@@ -37,6 +37,12 @@ function Morse(displayDiv, bufferDisplayDiv) {
                 }
                 var val = this.morseToLetter[this.buffer];
                 return (val) ? val : decoder.UNKNOWN;
+            },
+            // hot key mappings
+            {
+                '*' : function() { this.dot(); },
+                '-' : function() { this.dash(); },
+                '0' : function() { this.back(); },
             }
     );
 
