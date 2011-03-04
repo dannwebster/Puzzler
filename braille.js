@@ -2,7 +2,7 @@ function Braille() {
     this.OFF = ".";
     this.ON = "0";
     this.EMPTY = "......";
-
+// This is my change.
 
     this.parent = Code;
     this.parent('braille', 'png', 
