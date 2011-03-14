@@ -1,0 +1,4 @@
+# cache all html elements so that I am not constantly looking them up in the DOM with a getElementById // does this actually help?
+# style some things - make not look horrible
+# build tab icons
+# 

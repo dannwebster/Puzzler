@@ -1,0 +1,124 @@
+.decimal-img {
+    border : 1px solid;
+    height : 30px;
+    width : 20px;
+    text-decoration : none;
+}
+.orig-code img {
+    opacity : 1.0;
+}
+
+.non-orig-code img {
+    opacity : 0.4;
+}
+
+.letter-tile {
+    border : 1px solid;
+}
+
+.level1-tabs {
+    margin : 0px;
+    padding : 0px;
+}
+
+.level1-tabs li {
+    display : inline;
+}
+
+.level1-tabs a {
+    text-decoration : none;
+}
+
+.l1-tab-off {
+    padding : 0;
+    margin : 0;
+    background : url(./images/site/l1-tab-off.png) bottom repeat-x;
+}
+
+.l1-tab-on {
+    background : url(./images/site/l1-tab-on.png) bottom repeat-x;
+}
+
+.l1-tab-off:before {
+    content : url(./images/site/l1-tab-off-left.png) bottom left no-repeat;
+}
+
+.l1-tab-off:after {
+    content : url(./images/site/l1-tab-off-right.png) bottom right no-repeat;
+}
+
+.l1-tab-on:before {
+    content : url(./images/site/l1-tab-on-left.png) bottom left no-repeat;
+}
+
+.l1-tab-on:after {
+    content : url(./images/site/l1-tab-on-right.png) bottom right no-repeat;
+}
+
+.level2-tabs {
+    margin : 0px;
+    padding : 0px;
+    padding-top : 5px;
+}
+
+.level2-tabs li {
+    display : inline;
+}
+
+.l1-tab-on {
+    color : black;
+}
+
+.l1-tab-off {
+    color : blue;
+}
+
+.l2-tab-on {
+    color : brown;
+}
+
+.l2-tab-off {
+    color : silver;
+}
+
+.level2-tabs a {
+    text-decoration : none;
+}
+
+.l2-tab-on {
+    background : url(./images/site/l2-tab-on.png) bottom repeat-x;
+}
+
+/*
+.l2-tab-off {
+    background : url(./images/site/l2-tab-off.png) bottom repeat-x;
+}
+
+.l2-tab-off:before {
+    content : url(./images/site/l2-tab-off-left.png) bottom left no-repeat;
+}
+
+.l2-tab-off:after {
+    content : url(./images/site/l2-tab-off-right.png) bottom right no-repeat;
+}
+
+.l2-tab-on:before {
+    content : url(./images/site/l2-tab-on-left.png) bottom left no-repeat;
+}
+
+.l2-tab-on:after {
+    content : url(./images/site/l2-tab-on-right.png) bottom right no-repeat;
+}
+*/
+
+.level2-tabs li {
+    background : url(./images/site/l2-tab-on.png) bottom repeat-x;
+}
+.level2-tabs li:before {
+    content : url(./images/site/l2-tab-on-left.png) bottom right no-repeat;
+}
+.level2-tabs li:after {
+    content : url(./images/site/l2-tab-on-right.png) bottom right no-repeat;
+}
+
+
