@@ -1,3 +1,11 @@
+/*Function.prototype.bind = function(pos, c) {
+    function bind(scope) {
+        return function () {
+            this.apply(scope, arguments);
+        };
+    }
+}
+*/
 
 String.prototype.replaceChar = function(pos, c) {
     var before = this.substring(0, pos);

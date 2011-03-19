@@ -23,6 +23,8 @@
 
 .level1-tabs li {
     display : inline;
+    margin-left : 1px;
+    margin-right : 1px;
 }
 
 .level1-tabs a {
@@ -39,6 +41,7 @@
     background : url(./images/site/l1-tab-on.png) bottom repeat-x;
 }
 
+/*
 .l1-tab-off:before {
     content : url(./images/site/l1-tab-off-left.png) bottom left no-repeat;
 }
@@ -54,6 +57,7 @@
 .l1-tab-on:after {
     content : url(./images/site/l1-tab-on-right.png) bottom right no-repeat;
 }
+*/
 
 .level2-tabs {
     margin : 0px;
@@ -63,6 +67,9 @@
 
 .level2-tabs li {
     display : inline;
+    margin-left : 1px;
+    margin-right : 1px;
+
 }
 
 .l1-tab-on {
@@ -70,11 +77,11 @@
 }
 
 .l1-tab-off {
-    color : blue;
+    color : silver;
 }
 
 .l2-tab-on {
-    color : brown;
+    color : black;
 }
 
 .l2-tab-off {
@@ -83,6 +90,10 @@
 
 .level2-tabs a {
     text-decoration : none;
+}
+
+.l2-tab-off {
+    background : url(./images/site/l2-tab-off.png) bottom repeat-x;
 }
 
 .l2-tab-on {
@@ -109,16 +120,8 @@
 .l2-tab-on:after {
     content : url(./images/site/l2-tab-on-right.png) bottom right no-repeat;
 }
-*/
 
 .level2-tabs li {
     background : url(./images/site/l2-tab-on.png) bottom repeat-x;
 }
-.level2-tabs li:before {
-    content : url(./images/site/l2-tab-on-left.png) bottom right no-repeat;
-}
-.level2-tabs li:after {
-    content : url(./images/site/l2-tab-on-right.png) bottom right no-repeat;
-}
-
-
+*/

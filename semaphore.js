@@ -35,6 +35,10 @@ function SemaphoreArm(id, horizCenter, vertCenter, bigR, littleR) {
     this.circleX = this.lineX + (this.xMult * this.littleR);
     this.circleY = this.lineY + (this.yMult * this.littleR);
 
+    this.minX = this.circleX - this.littleR;
+    this.maxX = this.circleX + this.littleR;
+    this.minY = this.circleY - this.littleR;
+    this.maxY = this.circleY + this.littleR;
 
     this.draw = function(ctx) {
         var drawColor = (this.isActive) ? this.activeColor : this.inactiveColor;
@@ -70,13 +74,20 @@ function SemaphoreArm(id, horizCenter, vertCenter, bigR, littleR) {
         ctx.stroke();
     }
 
+    this.inBoundingBox = function(c) {
+        var inside = 
+            (c.x >= this.minX && c.x <= this.maxX) &&
+            (c.y >= this.minY && c.y <= this.maxY);
+        return inside;
+    }
+
 }
 
-function SemaphoreCanvas(div) {
+function SemaphoreCanvas(div, activateCallback) {
     this.div = div;
-    this.height = 225;
-    this.width = 225;
-    this.bigR = 100;
+    this.height = 125;
+    this.width = 125;
+    this.bigR = 50;
     this.littleR = 10;
 
     this.vertCenter = this.height / 2;
@@ -85,6 +96,24 @@ function SemaphoreCanvas(div) {
     div.innerHTML += '<canvas id="semaphore-canvas" width="' + this.width + '" height="' + this.height + '" ></canvas>';
     this.canvas = document.getElementById('semaphore-canvas');
     this.ctx = this.canvas.getContext("2d");
+    this.activateCallback = activateCallback;
+
+    this.getCursorPosition = function(e) {
+        return { x : e.offsetX, y : e.offsetY };
+    }
+
+    this.onClick = function(e) {
+        var coords = this.getCursorPosition(e);
+        for (i in this.arms) {
+            var arm = this.arms[i];
+            var id = arm.id;
+            if (arm.inBoundingBox(coords)) {
+                this.activateCallback(id);
+            }
+        }
+    }
+
+    this.canvas.addEventListener('click', this.onClick.bind(this), false);
 
     this.arms = [];
     for (var i = 1; i <= 8; i++) {
@@ -116,21 +145,22 @@ function Semaphore() {
             // resetFunction
             // **************
             function() {
-            this.flagA = 0;
-            this.flagB = 0;
+                this.flags = [];
             }, 
 
             // **************
             // updateDisplayFunction
             // **************
             function() {
-                var disable =  (this.flagA != 0 && this.flagB != 0);
+                /*
+                var disable =  this.
                 for (var i = 1; i <= 8 ; i++) {
                     var a = document.getElementById(this.name + i);
                     var active = (this.flagA == i || this.flagB == i);
                     a.innerHTML = (active) ? this.flagChars[i] : '';
                     a.disabled = (disable) ? !active : false;
                 }
+                */
                 this.semaphoreCanvas.updateDisplay();
             }, 
 
@@ -142,8 +172,8 @@ function Semaphore() {
                 if (val) {
                     var b = val % 10;
                     var a = (val-b) / 10;
-                    this.flagA = a;
-                    this.flagB = b;
+                    this.flags[0] = a;
+                    this.flags[1] = b;
                 } else {
                     this.reset();
                 }
@@ -153,11 +183,8 @@ function Semaphore() {
             // getLetterFunction
             // **************
             function() {
-                var flags = this.flags();
+                var flags = this.flagValue();
 
-                if (this.flagA == 0 && this.flagB == 0) {
-                    return '';
-                }
                 var val = this.flagsToLetter[flags];
                 if (val) {
                     return val;
@@ -171,7 +198,8 @@ function Semaphore() {
             // **************
             function(div) {
                 var content = '';
-                content += '<div id="semaphore-div">';
+                content += '<div id="semaphore-div" >';
+                /*
                 content += '<table>';
                 content += '<tr>';
                 content += '<td>&nbsp;</td>';
@@ -210,9 +238,11 @@ function Semaphore() {
                 content += '</tr>';
                 content += '</table>';
                 content += '</div>';
+                */
 
                 div.innerHTML += content;
-                this.semaphoreCanvas = new SemaphoreCanvas(div);
+                var semDiv = document.getElementById('semaphore-div');
+                this.semaphoreCanvas = new SemaphoreCanvas(semDiv, this.toggle.bind(this));
             },
 
             // hot key mappings
@@ -228,17 +258,36 @@ function Semaphore() {
             }
     );
 
-    this.flagA = 0;
-    this.flagB = 0;
+    this.flags = [];
 
+    /*
     this.flagChars = { 
-1 : '|', 2 : '/', 3 : '-', 4 : '\\',
-    5 : '|', 6 : '/', 7 : '-', 8 : '\\',
+        1 : '|', 2 : '/', 3 : '-', 4 : '\\',
+        5 : '|', 6 : '/', 7 : '-', 8 : '\\',
     };
-    this.flags = function() {
-        return 10 * this.flagA + this.flagB;
+    */
+
+    this.flagValue = function() {
+        var val;
+        if (this.flags.length == 0) {
+            val = 0;
+        } else if (this.flags.length == 1) {
+            val = this.flags[0];
+        } else {
+            var flagA = this.flags[0];
+            var flagB = this.flags[1];
+            if (flagA > flagB) {
+                var tmp = flagB;
+                flagB = flagA;
+                flagA = tmp;
+            }
+            val = 10 * flagA + flagB;
+        }
+        return val;
     }
+
     this.letterToFlags = {
+        '' : 0,
         'A' : 12,
         'B' : 13,
         'C' : 14,
@@ -270,30 +319,30 @@ function Semaphore() {
     this.flagsToLetter = {};
 
     for (var letter in this.letterToFlags) {
-        var flags = this.letterToFlags[letter];
-        this.flagsToLetter[flags] = letter;
+        var flagId = this.letterToFlags[letter];
+        this.flagsToLetter[flagId] = letter;
     }
 
     this.toggle = function(flag) {
-        if (this.flagA == flag) {
-            this.flagA = 0;
-        } else if (this.flagB == flag) {
-            this.flagB = 0;
-        } else if (this.flagA == 0) {
-            this.flagA = flag;
-        } else if (this.flagB == 0) {
-            this.flagB = flag;
+        if (this.flags[0] == undefined) {
+            this.flags.push(flag);
+        } else if (this.flags.length == 1) {
+            if (this.flags[0] == flag) {
+                this.flags.pop();
+            } else {
+                this.flags.push(flag);
+            }
         } else {
-            this.flagA = flag;
+            if (this.flags[0] == flag) {
+                this.flags.pop();
+            } else if (this.flags[1] == flag) {
+                this.flags.pop();
+            } else {
+                this.flags[1] = flag;
+            }
         }
-
-        if (this.flagA > this.flagB) {
-            var tmp = this.flagA;
-            this.flagA = this.flagB;
-            this.flagB = tmp;
-        }
-        for (var i = i; i <= 8; i++) {
-            if (this.flagA == i || this.flagB == i) {
+        for (var i = 1; i <= 8; i++) {
+            if (this.flags[0] == i || this.flags[1] == i) {
                 this.semaphoreCanvas.activate(i);
             } else {
                 this.semaphoreCanvas.deactivate(i);
