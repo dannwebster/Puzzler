@@ -161,6 +161,7 @@ function Semaphore() {
                     a.disabled = (disable) ? !active : false;
                 }
                 */
+                this.updateCanvas();
                 this.semaphoreCanvas.updateDisplay();
             }, 
 
@@ -183,6 +184,10 @@ function Semaphore() {
             // getLetterFunction
             // **************
             function() {
+                if (this.flags.length == 0) {
+                    return this.decoder.EMPTY;
+                }
+
                 var flags = this.flagValue();
 
                 var val = this.flagsToLetter[flags];
@@ -334,13 +339,17 @@ function Semaphore() {
             }
         } else {
             if (this.flags[0] == flag) {
-                this.flags.pop();
+                this.flags.shift();
             } else if (this.flags[1] == flag) {
                 this.flags.pop();
             } else {
                 this.flags[1] = flag;
             }
         }
+        this.decoder.updateDisplay();
+    }
+
+    this.updateCanvas = function() {
         for (var i = 1; i <= 8; i++) {
             if (this.flags[0] == i || this.flags[1] == i) {
                 this.semaphoreCanvas.activate(i);
@@ -348,7 +357,7 @@ function Semaphore() {
                 this.semaphoreCanvas.deactivate(i);
             }
         }
-        this.decoder.updateDisplay();
     }
+ 
 }
 

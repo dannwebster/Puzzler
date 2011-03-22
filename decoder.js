@@ -1,11 +1,12 @@
-/*Function.prototype.bind = function(pos, c) {
-    function bind(scope) {
-        return function () {
-            this.apply(scope, arguments);
-        };
+if (!(Function.prototype.bind)) {
+    Function.prototype.bind = function(pos, c) {
+        function bind(scope) {
+            return function () {
+                this.apply(scope, arguments);
+            };
+        }
     }
 }
-*/
 
 String.prototype.replaceChar = function(pos, c) {
     var before = this.substring(0, pos);
@@ -31,8 +32,8 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
     this.EMPTY = '';
     this.UNKNOWN = '?';
     this.mode = 'ADD';
-    this.cursor = 1;
     this.message = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    this.cursor = this.message.length;
     this.letterCodes = [];
     this.codes = {};
     this.searches = {};
@@ -48,19 +49,22 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
     this.editorTextAreaId = 'editor-text-area';
     this.modeAreaId = 'mode-area';
 
+    for (var i = 0; i < this.message.length; i++) {
+        this.letterCodes[i] = null;
+    }
     this.commit = function() {
         var val = this.code().getLetter();
         if (val) {
-            if (this.cursor > this.message.length) {
+            if (this.cursor == this.message.length) {
                 this.message += val;
                 this.letterCodes[this.letterCodes.length] = this.code().name;
             } else {
-                this.message = this.message.replaceChar(this.cursor,val[0]);
+                this.message = this.message.replaceChar(this.cursor, val[0]);
                 this.letterCodes[this.cursor] = this.code().name;
             }
         }
         this.mode = 'ADD';
-        this.cursor = this.message.length + 1;
+        this.cursor = this.message.length;
         this.code().reset();
         this.updateDisplay();
     };
@@ -167,6 +171,7 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
         content += '<button id="reset"  value="Reset" onclick="decoder.resetCode()">Reset</button>';
         content += '<button id="commit"  value="Commit" onclick="decoder.commit()">Commit</button>';
         content += '<button id="backspace"  value="Backspace" onclick="decoder.backspace()">Backspace</button>';
+        content += '<button id="delete"  value="Delete" onclick="decoder.del()">Delete</button>';
         content += '<button id="space"  value="Space" onclick="decoder.space()">Space</button>';
         content += '<button id="clear"  value="Clear" onclick="decoder.clearCode()">Clear Message</button>';
         content += '<div id="editor-div">';
@@ -221,7 +226,7 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
 
     this.setMessage = function(message) {
         this.message = message.toUpperCase();
-        this.cursor = message.length + 1;
+        this.cursor = message.length;
         this.updateDisplay();
     }
 
@@ -255,12 +260,13 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
         }
         for (codeName in this.codes) {
             var code = this.codes[codeName];
-            var tab = document.getElementById(codeName + '-tab');
             if (code.name == this.currentCode) {
-                tab.className = 'l2-tab-on';
+                this.showCodeMessage(code.name);
+                this.showCodeTab(code.name);
                 code.show();
             } else {
-                tab.className = 'l2-tab-off';
+                this.hideCodeMessage(code.name);
+                this.hideCodeTab(code.name);
                 code.hide();
             }
             code.updateDisplay();
@@ -279,9 +285,41 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
         }
     };
 
+    this.showCodeTab = function(codeName) {
+        var tab = document.getElementById(codeName + '-tab');
+        tab.className = 'l2-tab-on';
+    }
+
+    this.hideCodeTab = function(codeName) {
+        var tab = document.getElementById(codeName + '-tab');
+        tab.className = 'l2-tab-off';
+    }
+
+    this.hideCodeMessage = function(codeName) {
+        var codeMessage = document.getElementById(codeName + '-message-row');
+        var codeMessageExpander = document.getElementById(codeName + '-message-row-expander');
+        codeMessage.className = 'code-message-off';
+        codeMessageExpander.innerHTML = '+';
+        codeMessageExpander.title = 'Show ' + codeName.capFirst();
+        codeMessageExpander.onclick = function() {this.showCodeMessage(codeName)}.bind(this);
+    }
+
+    this.showCodeMessage = function(codeName) {
+        var codeMessage = document.getElementById(codeName + '-message-row');
+        var codeMessageExpander = document.getElementById(codeName + '-message-row-expander');
+        codeMessage.className = 'code-message-on';
+        codeMessageExpander.innerHTML = '-';
+        codeMessageExpander.title = 'Hide ' + codeName.capFirst();
+        codeMessageExpander.onclick = function() {this.hideCodeMessage(codeName)}.bind(this);
+    }
+
     this.createMessage = function(message) {
         var m = '<table id="message-table"><thead>';
-        m += '<tr id="message-row"><tr><th>Message</th>';
+        m += '<tr id="message-row"><tr><th>Message<br/>';
+        for (codeName in this.codes) {
+            m += '<a href="#" id="' + codeName + '-message-row-expander" title="Show ' + codeName.capFirst() + '" onclick="decoder.showCodeMessage(\'' + codeName + '\')">+</a>&nbsp;';
+        }
+        m += '</th>';
         for (var i = 0; i < message.length; i++) {
             m += '<th>';
             if (i == this.cursor) {
@@ -296,7 +334,7 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
         m += '</tr></thead>';
         m += '<tbody>';
         for (codeName in this.codes) {
-                m += '<tr><th id="message_' + codeName + '_row">';
+                m += '<tr id="' + codeName + '-message-row"><th>';
                 m += codeName.capFirst();
                 m += '</th>';
             for (var i = 0; i < message.length; i++) {
@@ -330,24 +368,26 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
         this.updateDisplay();
     };
 
-    this.unedit = function() {
-        this.cursor = this.message.length + 1;
-        this.mode = 'ADD';
-    };
-
     this.space = function() {
         this.message = this.message + ' ';
         this.commit();
     };
 
-    this.backspace = function() {
-        this.unedit();
-        if (this.message.length > 0) {
-            this.message = this.message.substring(0, this.message.length-1);
-            this.letterCodes.pop();
+    this.del = function(offset) {
+        if (!(offset)) {
+            offset = 0;
         }
-        this.code().reset();
-        this.commit();
+        var point = this.cursor + offset;
+        var a = this.message.substring(0, point);
+        var b = this.message.substring(point + 1, this.message.length);
+        this.message = a + b;
+        this.cursor += offset;
+        if (this.cursor < 0)  this.cursor = 0;
+        if (this.cursor > this.message.length)  this.cursor = this.message.length;
+        this.updateDisplay();
+    }
+    this.backspace = function() {
+        this.del(-1);
     };
 
     this.clearCode = function() {
@@ -355,7 +395,7 @@ function Decoder(messageAreaId, characterAreaId, modeAreaId)  {
             return;
         }
         this.mode = 'ADD';
-        this.cursor = 1;
+        this.cursor = 0;
         this.message = "";
         this.currentValue = "";
         this.code().reset();
@@ -487,6 +527,7 @@ function Search(name, searchFunction, resetFunction, updateDisplayFunction, draw
     this.updateDisplay = updateDisplayFunction; // no parameters; update the html page to represent the interior state 
     this.draw = drawFunction; // one parameter: the div to insert this into; draw the visible UI for the code
     this.decoder = '';
+    this.showCodeMessage = false;
 
     this.setVisible = function(visible) {
         var div = document.getElementById(this.displayDiv);

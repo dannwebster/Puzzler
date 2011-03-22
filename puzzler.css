@@ -100,6 +100,11 @@
     background : url(./images/site/l2-tab-on.png) bottom repeat-x;
 }
 
+.code-message-off {
+    display : none;
+}
+.code-message-on {
+}
 /*
 .l2-tab-off {
     background : url(./images/site/l2-tab-off.png) bottom repeat-x;
